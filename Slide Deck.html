@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Performance Deck</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* HeartMath Brand Colors */
+        :root {
+            --hm-navy: #002855;
+            --hm-blue: #009fc2;
+            --hm-green: #7ab800;
+            --hm-purple: #6a4c93;
+            --hm-gray: #f3f4f6;
+        }
+        body { font-family: 'Inter', system-ui, sans-serif; background-color: #f8fafc; overflow: hidden; }
+        
+        /* Navigation Styles */
+        .nav-item {
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+        .nav-item:hover { background-color: rgba(255,255,255,0.1); opacity: 1; }
+        .nav-item.active {
+            background-color: rgba(0, 159, 194, 0.1);
+            border-left-color: var(--hm-blue);
+            color: var(--hm-blue);
+            opacity: 1;
+        }
+
+        /* Slide Transitions */
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .slide.active-slide { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scrollbar for data tables */
+        .scroller::-webkit-scrollbar { width: 6px; }
+        .scroller::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+    </style>
+</head>
+<body class="flex h-screen w-full">
+
+    <aside class="w-64 bg-[#002855] text-white flex flex-col shadow-2xl z-10">
+        <div class="p-6 border-b border-gray-700">
+            <h1 class="text-xl font-bold tracking-wide">Performance<br><span class="text-[#009fc2]">Dashboard</span></h1>
+            <p class="text-xs text-gray-400 mt-2">Feb 2026 Report</p>
+        </div>
+
+        <nav class="flex-1 py-6 space-y-1">
+            <div onclick="switchSlide('slide-summary')" id="nav-summary" class="nav-item active px-6 py-4 flex items-center gap-3">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                <span class="font-medium">Executive Summary</span>
+            </div>
+            <div onclick="switchSlide('slide-traffic')" id="nav-traffic" class="nav-item px-6 py-4 flex items-center gap-3">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
+                <span class="font-medium">Traffic Analysis</span>
+            </div>
+            <div onclick="switchSlide('slide-sales')" id="nav-sales" class="nav-item px-6 py-4 flex items-center gap-3">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="font-medium">Sales Funnel</span>
+            </div>
+            <div onclick="switchSlide('slide-topics')" id="nav-topics" class="nav-item px-6 py-4 flex items-center gap-3">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                <span class="font-medium">Topics & Insights</span>
+            </div>
+        </nav>
+        
+        <div class="p-6 text-xs text-slate-400">
+            &copy; 2026 HeartMath<br>Internal Use Only
+        </div>
+    </aside>
+
+    <main class="flex-1 bg-gray-50 p-10 overflow-y-auto relative">
+        
+        <header class="flex justify-between items-center mb-10 pb-4 border-b border-gray-200">
+            <div>
+                <h2 class="text-2xl font-bold text-[#002855]" id="page-title">Executive Summary</h2>
+                <p class="text-slate-500 text-sm mt-1">Go-Live Date: <span class="text-[#009fc2] font-semibold">Wednesday, Feb 4th, 2026</span></p>
+            </div>
+            <div class="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200">
+                <span class="text-xs font-bold text-slate-400 uppercase">Data Range</span>
+                <div class="text-sm font-semibold text-[#002855]">Feb 4 - Feb 7, 2026</div>
+            </div>
+        </header>
+
+        <section id="slide-summary" class="slide active-slide">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-[#009fc2] hover:shadow-md transition">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Volume</p>
+                            <p class="text-5xl font-extrabold text-[#002855] mt-2">26</p>
+                            <p class="text-sm text-slate-500 mt-2">Conversations Handled</p>
+                        </div>
+                        <div class="p-3 bg-blue-50 rounded-full text-[#009fc2]">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-[#7ab800] hover:shadow-md transition">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Deflection Rate</p>
+                            <p class="text-5xl font-extrabold text-[#7ab800] mt-2">69%</p>
+                            <p class="text-sm text-slate-500 mt-2">Resolved without Human</p>
+                        </div>
+                        <div class="p-3 bg-green-50 rounded-full text-[#7ab800]">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border-t-4 border-[#6a4c93] hover:shadow-md transition">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Positive Feedback</p>
+                            <p class="text-5xl font-extrabold text-[#6a4c93] mt-2">26</p>
+                            <p class="text-sm text-slate-500 mt-2">User Rating Score</p>
+                        </div>
+                        <div class="p-3 bg-purple-50 rounded-full text-[#6a4c93]">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-100">
+                <h3 class="text-lg font-bold text-[#002855] mb-4">Quick Insights</h3>
+                <ul class="space-y-3">
+                    <li class="flex items-start gap-3">
+                        <div class="w-2 h-2 rounded-full bg-[#009fc2] mt-2"></div>
+                        <p class="text-slate-600">The chatbot successfully launched on <strong class="text-[#002855]">Feb 4th</strong>, handling initial traffic spikes with zero downtime.</p>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <div class="w-2 h-2 rounded-full bg-[#7ab800] mt-2"></div>
+                        <p class="text-slate-600">High deflection rate indicates strong knowledge base coverage for common "Tier 1" questions.</p>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <div class="w-2 h-2 rounded-full bg-[#6a4c93] mt-2"></div>
+                        <p class="text-slate-600">Sales inquiries constitute the majority of conversation volume, suggesting high user intent.</p>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="slide-traffic" class="slide">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 h-96">
+                <div class="bg-white p-6 rounded-xl shadow-sm flex flex-col">
+                    <h3 class="font-bold text-[#002855] mb-4">Inquiry Volume Trend (Daily)</h3>
+                    <div class="relative flex-1">
+                        <canvas id="volumeChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm flex flex-col">
+                    <h3 class="font-bold text-[#002855] mb-4">Department Breakdown</h3>
+                    <div class="relative flex-1 flex justify-center">
+                        <canvas id="deptChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center text-sm text-slate-500">
+                        Sales drives the majority of bot traffic.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-6 mt-8">
+                <div class="p-4 bg-blue-50 rounded-lg border border-blue-100 text-center">
+                    <p class="text-xs text-slate-500 uppercase font-bold">Bot Handling Ratio</p>
+                    <p id="stat-bot-ratio" class="text-2xl font-bold text-[#009fc2]">0%</p>
+                </div>
+                <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
+                    <p class="text-xs text-slate-500 uppercase font-bold">Peak Day</p>
+                    <p class="text-2xl font-bold text-slate-700">Feb 5</p>
+                </div>
+                 <div class="p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
+                    <p class="text-xs text-slate-500 uppercase font-bold">Top Dept</p>
+                    <p class="text-2xl font-bold text-slate-700">Sales</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="slide-sales" class="slide">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white p-5 rounded-lg shadow-sm border-l-4 border-slate-400 flex flex-col justify-center">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase">Total Sales Inquiries</h3>
+                    <div class="flex items-baseline gap-2 mt-1">
+                        <p id="kpi-inquiries" class="text-4xl font-bold text-slate-700">0</p>
+                        <span class="text-sm text-slate-400">tickets</span>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-lg shadow-sm border-l-4 border-[#7ab800] flex flex-col justify-center">
+                    <h3 class="text-xs font-bold text-slate-500 uppercase">Successfully Converted</h3>
+                    <div class="flex items-baseline gap-2 mt-1">
+                        <p id="kpi-converted" class="text-4xl font-bold text-[#7ab800]">0</p>
+                        <span class="text-sm text-slate-400">closed won</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm h-96 flex flex-col">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-[#002855]">Product Interest vs. Conversion</h3>
+                    <div class="flex gap-4 text-xs">
+                        <div class="flex items-center gap-1"><span class="w-3 h-3 bg-slate-300 rounded-sm"></span> Inquiry</div>
+                        <div class="flex items-center gap-1"><span class="w-3 h-3 bg-[#7ab800] rounded-sm"></span> Converted</div>
+                    </div>
+                </div>
+                <div class="relative flex-1">
+                    <canvas id="funnelChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="slide-topics" class="slide">
+             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <h3 class="font-bold text-[#002855] mb-6">Top Inquiry Topics</h3>
+                    <ul id="topTopics" class="space-y-4">
+                        </ul>
+                </div>
+
+                <div class="bg-[#002855] text-white p-8 rounded-xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-2xl mb-2">Recommendations</h3>
+                        <p class="text-blue-200 text-sm mb-6">Based on topic analysis</p>
+                        
+                        <div class="space-y-6">
+                            <div class="flex gap-4">
+                                <div class="w-10 h-10 rounded-full bg-[#009fc2] flex items-center justify-center shrink-0 font-bold">1</div>
+                                <div>
+                                    <h4 class="font-bold text-lg">Enhance "C-Plus Sensor" Content</h4>
+                                    <p class="text-sm text-gray-300 mt-1">High volume of inquiries regarding compatibility and discounts. Create a dedicated Quick Answer flow.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4">
+                                <div class="w-10 h-10 rounded-full bg-[#009fc2] flex items-center justify-center shrink-0 font-bold">2</div>
+                                <div>
+                                    <h4 class="font-bold text-lg">Training Certification FAQ</h4>
+                                    <p class="text-sm text-gray-300 mt-1">Clarify the difference between HCC and BPR certifications in the initial bot greeting menu.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 pt-6 border-t border-blue-900 text-center">
+                        <button class="bg-[#7ab800] hover:bg-[#6a9e00] text-white font-bold py-3 px-8 rounded-lg transition shadow-lg">
+                            Download Full Data Export
+                        </button>
+                    </div>
+                </div>
+             </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- DATA SOURCE (From Original Report) ---
+        const chatBotData = [
+          { "desc": "I need to buy emWave2 Charging Cable", "dept": "Sales", "subType": "Charging Cable", "date": "Feb 7, 2026", "owner": "HeartMath Chat", "converted": "Yes" },
+          { "desc": "Can I buy and use just the HeartMath ear clip with my phone?", "dept": "Technical Support", "subType": "Ear Sensor", "date": "Feb 7, 2026", "owner": "Ramesh Guda", "converted": "No" },
+          { "desc": "I am interested in learning about your Affiliate Program.", "dept": "Sales", "subType": "Other", "date": "Feb 7, 2026", "owner": "HeartMath Chat", "converted": "No" },
+          { "desc": "Do you accept HSA", "dept": "Sales", "subType": "Other", "date": "Feb 6, 2026", "owner": "HeartMath Chat", "converted": "No" },
+          { "desc": "Need help deciding between HCC and BPR Certification", "dept": "Sales", "subType": "CP Trainings", "date": "Feb 6, 2026", "owner": "HeartMath Chat", "converted": "No" },
+          { "desc": "I need information on your training programs", "dept": "Sales", "subType": "CP Trainings", "date": "Feb 6, 2026", "owner": "HeartMath Chat", "converted": "No" },
+          { "desc": "How to create a Database in emWave Pro", "dept": "Technical Support", "subType": "emWave Pro", "date": "Feb 6, 2026", "owner": "HeartMath Chat", "converted": "No" },
+          { "desc": "How do I reach your Customer Support", "dept": "Customer Service", "subType": "Other", "date": "Feb 6, 2026", "owner": "HeartMath Chat", "converted": "No" },
+          { "desc": "Can I get a discount", "dept": "Sales", "subType": "BTLE C-Plus Sensor", "date": "Feb 6, 2026", "owner": "Ramesh Guda", "converted": "No" },
+          { "desc": "How much is the emWave® Pro Plus", "dept": "Sales", "subType": "emWave Pro Plus", "date": "Feb 5, 2026", "owner": "HeartMath Chat", "converted": "No" },
+          { "desc": "Interested in BPR Certification", "dept": "Sales", "subType": "CP Trainings", "date": "Feb 5, 2026", "owner": "Ramesh Guda", "converted": "No" },
+          { "desc": "Can I get a coupon code?", "dept": "Sales", "subType": "BTLE C-Plus Sensor", "date": "Feb 5, 2026", "owner": "HeartMath Chat", "converted": "No" },
+          { "desc": "Can I get a coupon code?", "dept": "Sales", "subType": "BTLE C-Plus Sensor", "date": "Feb 5, 2026", "owner": "HeartMath Chat", "converted": "Yes" },
+          { "desc": "Compare C Plus vs Inner Balance Sensors", "dept": "Technical Support", "subType": "BTLE C-Plus Sensor", "date": "Feb 5, 2026", "owner": "HeartMath Chat", "converted": "No" },
+          { "desc": "Interested in HCC Program", "dept": "Sales", "subType": "CP Trainings", "date": "Feb 5, 2026", "owner": "Ramesh Guda", "converted": "No" }
+        ];
+
+        let charts = {};
+        const colors = { navy: '#002855', blue: '#009fc2', green: '#7ab800', gray: '#cbd5e1', purple: '#6a4c93' };
+
+        // --- NAVIGATION LOGIC ---
+        function switchSlide(slideId) {
+            // Update Navigation UI
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const navId = slideId.replace('slide-', 'nav-');
+            const activeNav = document.getElementById(navId);
+            if(activeNav) activeNav.classList.add('active');
+
+            // Update Title
+            const titles = {
+                'slide-summary': 'Executive Summary',
+                'slide-traffic': 'Traffic Analysis',
+                'slide-sales': 'Sales Performance',
+                'slide-topics': 'Topics & Insights'
+            };
+            document.getElementById('page-title').textContent = titles[slideId];
+
+            // Switch Slide Content
+            document.querySelectorAll('.slide').forEach(el => el.classList.remove('active-slide'));
+            document.getElementById(slideId).classList.add('active-slide');
+
+            // Trigger Resize for charts to ensure they render correctly in new visible area
+            setTimeout(() => {
+                Object.values(charts).forEach(chart => chart.resize());
+            }, 50);
+        }
+
+        // --- DASHBOARD CALCULATION LOGIC ---
+        function initDashboard() {
+            // 1. KPIs
+            const salesInquiries = chatBotData.filter(d => d.dept === 'Sales').length;
+            const salesConverted = chatBotData.filter(d => d.dept === 'Sales' && d.converted === 'Yes').length;
+            const botInteractions = chatBotData.filter(d => d.owner.includes('Chat')).length;
+            const botPct = chatBotData.length > 0 ? Math.round((botInteractions / chatBotData.length) * 100) : 0;
+
+            document.getElementById('kpi-inquiries').textContent = salesInquiries;
+            document.getElementById('kpi-converted').textContent = salesConverted;
+            document.getElementById('stat-bot-ratio').textContent = `${botPct}%`;
+
+            // 2. Charts
+            renderCharts();
+            
+            // 3. Topics
+            renderTopics();
+        }
+
+        function renderCharts() {
+            Chart.defaults.font.family = "'Inter', sans-serif";
+            Chart.defaults.color = "#64748b";
+
+            // Volume Chart
+            const volData = chatBotData.reduce((acc, curr) => { acc[curr.date] = (acc[curr.date]||0)+1; return acc; }, {});
+            const sortedDates = Object.keys(volData).sort((a,b) => new Date(a) - new Date(b)); // Sort chronological
+
+            charts['vol'] = new Chart(document.getElementById('volumeChart'), {
+                type: 'bar',
+                data: {
+                    labels: sortedDates,
+                    datasets: [{ 
+                        label: 'Tickets', 
+                        data: sortedDates.map(d => volData[d]), 
+                        backgroundColor: colors.navy, 
+                        borderRadius: 6,
+                        barThickness: 50
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { borderDash: [2, 4] } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // Dept Chart
+            const deptData = chatBotData.reduce((acc, curr) => { acc[curr.dept] = (acc[curr.dept]||0)+1; return acc; }, {});
+            charts['dept'] = new Chart(document.getElementById('deptChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(deptData),
+                    datasets: [{ 
+                        data: Object.values(deptData), 
+                        backgroundColor: [colors.navy, colors.blue, colors.green, colors.gray],
+                        borderWidth: 0
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 20 } } }
+                }
+            });
+
+            // Sales Funnel Chart
+            const salesData = chatBotData.filter(d => d.dept === 'Sales');
+            const subTypes = [...new Set(salesData.map(d => d.subType))].filter(t => t); 
+            
+            const inquiries = subTypes.map(t => salesData.filter(d => d.subType === t).length);
+            const converted = subTypes.map(t => salesData.filter(d => d.subType === t && d.converted === 'Yes').length);
+
+            charts['funnel'] = new Chart(document.getElementById('funnelChart'), {
+                type: 'bar',
+                data: {
+                    labels: subTypes,
+                    datasets: [
+                        { label: 'Inquiry', data: inquiries, backgroundColor: '#cbd5e1', barPercentage: 0.5, borderRadius: 4 },
+                        { label: 'Converted', data: converted, backgroundColor: colors.green, barPercentage: 0.5, borderRadius: 4 }
+                    ]
+                },
+                options: { 
+                    indexAxis: 'y', 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    scales: { 
+                        x: { stacked: false, grid: { display: false } }, 
+                        y: { grid: { display: false } } 
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function renderTopics() {
+            const list = document.getElementById('topTopics');
+            list.innerHTML = '';
+            
+            const topicCounts = {};
+            chatBotData.forEach(d => {
+                let key = d.subType;
+                if (!key || key === 'Other') {
+                    if (d.desc.toLowerCase().includes('certification')) key = 'Certification';
+                    else if (d.desc.toLowerCase().includes('discount') || d.desc.toLowerCase().includes('coupon')) key = 'Discount/Coupon';
+                    else if (d.desc.toLowerCase().includes('hsa')) key = 'Billing/HSA';
+                    else if (d.desc.toLowerCase().includes('support')) key = 'Customer Support';
+                    else key = 'General Inquiry';
+                }
+                topicCounts[key] = (topicCounts[key] || 0) + 1;
+            });
+
+            const sorted = Object.entries(topicCounts).sort((a,b) => b[1] - a[1]).slice(0, 5);
+
+            sorted.forEach(([topic, count], i) => {
+                const li = document.createElement('li');
+                li.className = "flex justify-between items-center p-4 bg-slate-50 rounded-lg border border-slate-100 hover:bg-white hover:shadow-sm transition";
+                li.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm font-bold text-slate-300">0${i+1}</span>
+                        <span class="text-base font-semibold text-slate-700">${topic}</span>
+                    </div>
+                    <span class="text-sm font-bold text-white bg-[#002855] px-3 py-1 rounded-full">${count}</span>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        // Initialize
+        window.addEventListener('load', initDashboard);
+
+    </script>
+</body>
+</html>
