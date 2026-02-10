@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeartMath ChatBot Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* HeartMath Brand Colors */
+        :root {
+            --hm-navy: #002855;
+            --hm-blue: #009fc2;
+            --hm-green: #7ab800;
+            --hm-purple: #6a4c93;
+            --hm-gray: #f3f4f6;
+            --hm-red: #ef4444;
+        }
+
+        body { 
+            background-color: var(--hm-gray); 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            color: var(--hm-navy); 
+        }
+
+        /* Utility Classes */
+        .text-hm-navy { color: var(--hm-navy); }
+        .text-hm-blue { color: var(--hm-blue); }
+        .text-hm-green { color: var(--hm-green); }
+        .bg-hm-navy { background-color: var(--hm-navy); }
+        .bg-hm-blue { background-color: var(--hm-blue); }
+        .bg-hm-green { background-color: var(--hm-green); }
+
+        /* Card Styling */
+        .hm-card { 
+            background: white; 
+            border-radius: 0.75rem; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
+            padding: 1.5rem; 
+            border-top: 4px solid var(--hm-navy); 
+            transition: all 0.3s ease;
+        }
+        .hm-card:hover { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+
+        /* Table Styling */
+        .hm-table th {
+            background-color: #f8fafc;
+            color: var(--hm-navy);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        .hm-table tr:hover td { background-color: #f0f9ff; }
+    </style>
+</head>
+<body class="pb-12">
+
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-10 h-10 bg-hm-navy rounded-full flex items-center justify-center text-white font-bold text-xl">HM</div>
+                        <div>
+                            <h1 class="text-2xl font-bold text-hm-navy tracking-tight">HeartMath</h1>
+                            <span class="text-xs text-hm-blue font-semibold tracking-wider uppercase">ChatBot Analytics</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <div class="text-right hidden md:block">
+                        <p class="text-xs text-gray-500">Go Live Date</p>
+                        <p class="text-sm font-semibold text-hm-navy">Wed, Feb 4, 2026</p>
+                    </div>
+                    <div>
+                        <select id="dateFilter" class="block w-48 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-hm-blue sm:text-sm rounded-md shadow-sm border">
+                            <option value="All">All Dates</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+        
+        <div class="mb-8 flex justify-between items-end">
+            <div>
+                <h2 class="text-3xl font-bold text-hm-navy">Dashboard Overview</h2>
+                <p class="text-gray-600 mt-1">Daily metrics, sales conversions, and operational insights.</p>
+            </div>
+            <div class="text-right">
+                <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">Last Update: Feb 10, 2026</span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="hm-card border-t-hm-blue">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 uppercase">Total Tickets</p>
+                        <h3 class="text-3xl font-bold text-hm-navy mt-2" id="kpi-total-tickets">59</h3>
+                        <p class="text-xs text-gray-400 mt-1" id="kpi-date-range">Feb 5 - Feb 10</p>
+                    </div>
+                    <div class="p-2 bg-blue-50 rounded-lg"><i class="fa-solid fa-ticket text-hm-blue text-xl"></i></div>
+                </div>
+            </div>
+
+            <div class="hm-card border-t-hm-green">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 uppercase">Revenue Generated</p>
+                        <h3 class="text-3xl font-bold text-hm-navy mt-2" id="kpi-revenue">$1,259.91</h3>
+                        <p class="text-xs text-green-600 font-bold mt-1">From Chat interactions</p>
+                    </div>
+                    <div class="p-2 bg-green-50 rounded-lg"><i class="fa-solid fa-sack-dollar text-hm-green text-xl"></i></div>
+                </div>
+            </div>
+
+            <div class="hm-card border-t-red-500">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 uppercase">Missing Emails</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2" id="kpi-missing-emails">17</h3>
+                        <p class="text-xs text-red-500 mt-1">5 since setting change</p>
+                    </div>
+                    <div class="p-2 bg-red-50 rounded-lg"><i class="fa-solid fa-user-slash text-red-500 text-xl"></i></div>
+                </div>
+            </div>
+
+            <div class="hm-card border-t-orange-500">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 uppercase">Order Cancellations</p>
+                        <h3 class="text-3xl font-bold text-hm-navy mt-2" id="kpi-cancellations">2</h3>
+                        <p class="text-xs text-gray-500 mt-1">Cancellation Requests</p>
+                    </div>
+                    <div class="p-2 bg-orange-50 rounded-lg"><i class="fa-solid fa-ban text-orange-500 text-xl"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="hm-card">
+                <h3 class="text-lg font-bold text-hm-navy mb-4">Inquiries by Department</h3>
+                <div class="h-64">
+                    <canvas id="deptChart"></canvas>
+                </div>
+            </div>
+
+            <div class="hm-card">
+                <h3 class="text-lg font-bold text-hm-navy mb-4">Sub-Type Distribution</h3>
+                <div class="h-64">
+                    <canvas id="subTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            
+            <div class="hm-card col-span-1 lg:col-span-2">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-hm-navy">Top 5 FAQs</h3>
+                    <div class="flex gap-2">
+                         <div class="bg-red-50 text-red-700 px-3 py-1 rounded-full text-xs font-bold">
+                            <i class="fa-solid fa-bullhorn mr-1"></i> <span id="kpi-spam">1</span> Spam Chat
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-hidden">
+                    <table class="min-w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-gray-50 uppercase tracking-wider border-b-2 border-gray-100">
+                            <tr>
+                                <th class="px-4 py-3 text-hm-navy">Inquiry / Topic</th>
+                                <th class="px-4 py-3 text-hm-navy text-right">Count</th>
+                                <th class="px-4 py-3 text-hm-navy">Category</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topInquiriesBody" class="divide-y divide-gray-100">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="hm-card col-span-1">
+                <h3 class="text-lg font-bold text-hm-navy mb-4">Top 5 Sub-Types</h3>
+                <div class="overflow-hidden">
+                    <table class="min-w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-gray-50 uppercase tracking-wider border-b-2 border-gray-100">
+                            <tr>
+                                <th class="px-4 py-3 text-hm-navy">Sub-Type</th>
+                                <th class="px-4 py-3 text-hm-navy text-right">Count</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topSubTypesBody" class="divide-y divide-gray-100">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="hm-card mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-hm-navy"><i class="fa-solid fa-cart-shopping mr-2 text-hm-green"></i>Chat to Sales Flow</h3>
+                <div class="bg-green-50 text-hm-green px-3 py-1 rounded-full text-sm font-bold">
+                    Total Value: <span id="table-total-value">$1,259.91</span>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 hm-table">
+                    <thead>
+                        <tr>
+                            <th class="px-6 py-3 text-left">Order #</th>
+                            <th class="px-6 py-3 text-left">Date</th>
+                            <th class="px-6 py-3 text-left">Contact</th>
+                            <th class="px-6 py-3 text-left">Item Purchased</th>
+                            <th class="px-6 py-3 text-right">Order Value</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesTableBody" class="bg-white divide-y divide-gray-200">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="hm-card border-t-hm-purple mb-8 bg-gradient-to-br from-white to-purple-50/50">
+            <h3 class="text-xl font-bold text-hm-navy mb-6"><i class="fa-solid fa-lightbulb mr-2 text-hm-purple"></i>Report Highlights & Observations</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="flex items-start bg-white p-4 rounded-lg shadow-sm border border-purple-100">
+                    <div class="flex-shrink-0 w-10 h-10 bg-red-100 text-red-500 rounded-full flex items-center justify-center mr-4">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold text-hm-navy mb-2">Critical Observations</h4>
+                        <ul class="list-disc list-outside pl-4 space-y-3 text-sm text-gray-700">
+                            <li>
+                                <strong>Impact of Email Setting Change:</strong> 
+                                Total Missing email is 17 but after the settings were changed we got 5 missing emails (included in the 17).
+                            </li>
+                            <li><strong>Consequence:</strong> We cannot offer proactive offers or reply back to these customers.</li>
+                            <li><strong>Spam:</strong> Also after Email settings has changed we got one spam / marketing chat.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-blue-100">
+                    <div class="flex items-center mb-3">
+                        <div class="w-8 h-8 bg-blue-100 text-hm-blue rounded-full flex items-center justify-center mr-3">
+                            <i class="fa-solid fa-book-medical"></i>
+                        </div>
+                        <h4 class="text-lg font-semibold text-hm-navy">Knowledge Base Updates</h4>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm">
+                            <thead class="bg-blue-50 text-hm-navy border-b border-blue-100">
+                                <tr>
+                                    <th class="px-3 py-2 text-left">Topic / Identified Gap</th>
+                                    <th class="px-3 py-2 text-left">Solution / Article Added</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 text-gray-600">
+                                <tr><td class="px-3 py-2 font-medium">Box Contents</td><td class="px-3 py-2">Added "What's Included in the Box?" (Finger Sensor in emWave Pro Plus)</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">Ear Clip Usage</td><td class="px-3 py-2">Added "Can I buy and use just the HeartMath ear clip with my phone?"</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">Certifications</td><td class="px-3 py-2">Added Solution: HeartMath Health Professional Certification Programs</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">Purchase Orders</td><td class="px-3 py-2">Added Guidelines for Submitting POs (Schools & Institutions)</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">Troubleshooting</td><td class="px-3 py-2">Added "How to 'Forget' a Sensor"</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">BPR Certification</td><td class="px-3 py-2">Added Guidelines for BPR Certification Inquiries</td></tr>
+                                <tr><td class="px-3 py-2 font-medium">Payment Options</td><td class="px-3 py-2">Added Solution "Do you have any Payment Plans?"</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hm-card mb-8">
+            <h3 class="text-lg font-bold text-hm-navy mb-4"><i class="fa-solid fa-list mr-2 text-gray-400"></i>Detailed Ticket Data Log</h3>
+            <div class="overflow-x-auto max-h-96 overflow-y-auto border rounded-lg">
+                <table class="min-w-full divide-y divide-gray-200 hm-table relative">
+                    <thead class="sticky top-0 z-10">
+                        <tr>
+                            <th class="px-6 py-3 text-left">Date</th>
+                            <th class="px-6 py-3 text-left">Description</th>
+                            <th class="px-6 py-3 text-left">Department</th>
+                            <th class="px-6 py-3 text-left">Sub Type</th>
+                            <th class="px-6 py-3 text-left">Ticket Owner</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fullTicketTableBody" class="bg-white divide-y divide-gray-200">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t mt-12 py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-gray-400 text-sm">
+            <p>&copy; 2026 HeartMath. All rights reserved. | HubSpot ChatBot Analytics Dashboard</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- DATA INGESTION ---
+        
+        // Full Ticket Data (Populated from Dashboard.xlsx)
+        const rawTicketData = [
+            {"desc": "Inner Balance App in French:", "dept": "Technical Support", "contact": "jojpeagle77@hotmail.com", "subtype": "Inner Balance", "date": "2026-02-05", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "How to download my Invoice?", "dept": "Customer Service", "contact": "coaching@catherinebazin.com", "subtype": "Ear Sensor", "date": "2026-02-05", "owner": "Ramesh Guda", "converted": "No"}, 
+            {"desc": "Interested in BPR Certification", "dept": "Sales", "contact": "thema@thewombsauna.com", "subtype": "CP Trainings", "date": "2026-02-05", "owner": "Ramesh Guda", "converted": "No"}, 
+            {"desc": "Will the Ear Sensor work on Gauged Earlobes?", "dept": "Technical Support", "contact": "galenroehm@yahoo.com", "subtype": "Ear Sensor", "date": "2026-02-05", "owner": "Ramesh Guda", "converted": "Yes"}, 
+            {"desc": "Clinical Certification Inquiry", "dept": "Sales", "contact": "silviopianista@yahoo.it", "subtype": "CP Trainings", "date": "2026-02-05", "owner": "Ramesh Guda", "converted": "No"}, 
+            {"desc": "Compare Inner Balance Sensor Models", "dept": "Technical Support", "contact": "maittri8@gmail.com", "subtype": "BTLE C-Plus Sensor", "date": "2026-02-05", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Can I get a coupon code?", "dept": "Sales", "contact": "galenroehm@yahoo.com", "subtype": "BTLE C-Plus Sensor", "date": "2026-02-05", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Can I get a coupon code?", "dept": "Sales", "contact": "janisgp@comcast.net", "subtype": "BTLE C-Plus Sensor", "date": "2026-02-05", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Interested in BPR Certification", "dept": "Sales", "contact": "treasa.wells@va.gov", "subtype": "CP Trainings", "date": "2026-02-05", "owner": "Ramesh Guda", "converted": "No"}, 
+            {"desc": "emWave Pro Plus Price Inquiry", "dept": "Sales", "contact": "treasa.wells@va.gov", "subtype": "emWave Pro Plus", "date": "2026-02-05", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Can I get a coupon code?", "dept": "Sales", "contact": "grafix4@hotmail.com", "subtype": "BTLE C-Plus Sensor", "date": "2026-02-06", "owner": "Ramesh Guda", "converted": "No"}, 
+            {"desc": "GCP2.0 Project Inquiry", "dept": "Technical Support", "contact": "-", "subtype": "(RNG)", "date": "2026-02-06", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "What is your refund policy?", "dept": "Customer Service", "contact": "edminamoto@outlook.com", "subtype": "Other", "date": "2026-02-06", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Where can I access the audio books", "dept": "Technical Support", "contact": "deniseholmlund@gmail.com", "subtype": "Other", "date": "2026-02-06", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "How to create a HeartCloud account", "dept": "Technical Support", "contact": "jrbaldwin1@gmail.com", "subtype": "HeartCloud", "date": "2026-02-06", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "How do I update my Credit Card details on file", "dept": "Sales", "contact": "merryl@insyncconsulting.net.au", "subtype": "Other", "date": "2026-02-06", "owner": "HeartMath Chat", "converted": "Yes"}, 
+            {"desc": "How do I reach your Customer Support", "dept": "Customer Service", "contact": "nmichael5768@gmail.com", "subtype": "Other", "date": "2026-02-06", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "How to create a new Database in emWave Pro", "dept": "Technical Support", "contact": "silviaza@gmail.com", "subtype": "emWave Pro", "date": "2026-02-06", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Interested in Training Programs", "dept": "Sales", "contact": "bonnietollison@gmail.com", "subtype": "CP Trainings", "date": "2026-02-06", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Certification Inquiry– Clinical Certification vs BPR Certification", "dept": "Sales", "contact": "catherine@redsagecenter.com", "subtype": "CP Trainings", "date": "2026-02-06", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Do you accept HSA", "dept": "Sales", "contact": "-", "subtype": "Other", "date": "2026-02-06", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Interested in Affiliate Program", "dept": "Sales", "contact": "monica@nourishedfn.com", "subtype": "Other", "date": "2026-02-07", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Can I Use the Ear Clip Without a Sensor on My Phone?", "dept": "Sales", "contact": "janet.hoopes2@gmail.com", "subtype": "Ear Sensor", "date": "2026-02-07", "owner": "Ramesh Guda", "converted": "Yes"}, 
+            {"desc": "Where Can I Get an emWave2 Charging Cable?", "dept": "Sales", "contact": "atencio.yolandita@gmail.com", "subtype": "Charging Cable", "date": "2026-02-07", "owner": "HeartMath Chat", "converted": "Yes"}, 
+            {"desc": "Clinical Certification Inquiry", "dept": "Sales", "contact": "alcorson08@gmail.com", "subtype": "CP Trainings", "date": "2026-02-07", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "How do I enable USB-OTG on my Android device", "dept": "Technical Support", "contact": "tuuuu1383@gmail.com", "subtype": "USB-C Sensor", "date": "2026-02-08", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Certification & CEU Inquiry – Licensed Marriage & Family Therapist", "dept": "Sales", "contact": "tamara.grace@outlook.com", "subtype": "CP Trainings", "date": "2026-02-08", "owner": "HeartMath Chat", "converted": "Yes"}, 
+            {"desc": "Where Is My Product Shipping From?", "dept": "Customer Service", "contact": "-", "subtype": "Other", "date": "2026-02-08", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Gift Purchase Inquiry – Will the Recipient Receive Lifetime App Subscription?", "dept": "Sales", "contact": "lisayoshihara@gmail.com", "subtype": "BTLE C-Plus Sensor", "date": "2026-02-08", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Where Is My Product Shipping From?", "dept": "Customer Service", "contact": "notyouraddress123@gmail.com", "subtype": "Other", "date": "2026-02-08", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Does your Certification Training Include Breath Work and CEUs", "dept": "Sales", "contact": "taliahellman84@gmail.com", "subtype": "CP Trainings", "date": "2026-02-08", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "The Heart’s Electromagnetic Field: How Far It Extends", "dept": "Technical Support", "contact": "braisjck@gmail.com", "subtype": "Other", "date": "2026-02-08", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Order Cancellation Request", "dept": "Customer Service", "contact": "scholzkatharina@web.de", "subtype": "BTLE C-Plus Sensor", "date": "2026-02-08", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Can I get a coupon code?", "dept": "Sales", "contact": "-", "subtype": "BTLE C-Plus Sensor", "date": "2026-02-08", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Can I get a coupon code?", "dept": "Sales", "contact": "-", "subtype": "BTLE C-Plus Sensor", "date": "2026-02-08", "owner": "Ramesh Guda", "converted": "No"}, 
+            {"desc": "Bluetooth vs Lightning", "dept": "Sales", "contact": "creatinghealthwellness@gmail.com", "subtype": "BTLE C-Plus Sensor", "date": "2026-02-08", "owner": "Ramesh Guda", "converted": "No"}, 
+            {"desc": "Will Coherence Plus Sensor work on Android", "dept": "Technical Support", "contact": "-", "subtype": "BTLE C-Plus Sensor", "date": "2026-02-08", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Will heartMath App work on iPad", "dept": "Technical Support", "contact": "-", "subtype": "HM App", "date": "2026-02-08", "owner": "Ramesh Guda", "converted": "No"}, 
+            {"desc": "How to update Sensor Firmware", "dept": "Technical Support", "contact": "creatinghealthwellness@gmail.com", "subtype": "BTLE C-Plus Sensor", "date": "2026-02-08", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Does HeartMath App support Multiple Accounts", "dept": "Technical Support", "contact": "creatinghealthwellness@gmail.com", "subtype": "HM App", "date": "2026-02-08", "owner": "Ramesh Guda", "converted": "No"}, 
+            {"desc": "How to charge ny Coherence Plus Sensor", "dept": "Technical Support", "contact": "dori.devereux@sbcglobal.net", "subtype": "BTLE C-Plus Sensor", "date": "2026-02-08", "owner": "Ramesh Guda", "converted": "No"}, 
+            {"desc": "325918 Order Cancellation Request", "dept": "Customer Service", "contact": "ommidan.creeney@gmail.com", "subtype": "BTLE C-Plus Sensor", "date": "2026-02-08", "owner": "Usha Kalpana", "converted": "No"}, 
+            {"desc": "What's Included in Coherence Plus Sensor Box", "dept": "Customer Service", "contact": "-", "subtype": "BTLE C-Plus Sensor", "date": "2026-02-08", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "How long can I wear the Ear Clip?", "dept": "Technical Support", "contact": "-", "subtype": "BTLE C-Plus Sensor", "date": "2026-02-08", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Guidelines on using Lightning Sensor on new iPhone models", "dept": "Technical Support", "contact": "drshelley@grablife.ca", "subtype": "Lightning Sensor", "date": "2026-02-08", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Can I use the HeartMath App without buying the Sensor?", "dept": "Technical Support", "contact": "groberts.pei@gmail.com", "subtype": "HeartMath App", "date": "2026-02-09", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "How do I track my Order?", "dept": "Customer Service", "contact": "-", "subtype": "Other", "date": "2026-02-09", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "EMF Sensitivity: Sensor Usage Guidelines", "dept": "Technical Support", "contact": "-", "subtype": "BTLE C-Plus Sensor", "date": "2026-02-09", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Does HeartMath App support German Language?", "dept": "Technical Support", "contact": "-", "subtype": "HeartMath App", "date": "2026-02-09", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "How Can I Access My 25% Trainer Discount?", "dept": "Customer Service", "contact": "denice.neale@icloud.com", "subtype": "Other", "date": "2026-02-09", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Are HeartMath.com and HeartMath.org the Same Organization", "dept": "Customer Service", "contact": "", "subtype": "Other", "date": "2026-02-09", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "AU Store Pricing Clarification", "dept": "Customer Service", "contact": "denice.neale@icloud.com", "subtype": "Other", "date": "2026-02-09", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Product Recommendation for Multi-Student Use: emWave Pro", "dept": "Sales", "contact": "jchristensen@spencerschools.org", "subtype": "emWave Pro", "date": "2026-02-09", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Can HeartMath Help Lower Blood Pressure?", "dept": "Sales", "contact": "", "subtype": "Other", "date": "2026-02-09", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "How to download emWave Software?", "dept": "Technical Support", "contact": "", "subtype": "Other", "date": "2026-02-09", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Does the emWave Pro Plus Include a Finger Sensor?", "dept": "Customer Service", "contact": "andreschaparro111@gmail.com", "subtype": "emWave Pro Plus", "date": "2026-02-09", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Do You Accept Purchase Orders and Tax Exemption for School Purchases?", "dept": "Sales", "contact": "jeilts@spencerschools.org", "subtype": "Other", "date": "2026-02-09", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Spam/Marketing Email Phishing", "dept": "Other", "contact": "", "subtype": "Other", "date": "2026-02-10", "owner": "HeartMath Chat", "converted": "No"}, 
+            {"desc": "Can I get a coupon code? Valentine’s Day Offer", "dept": "Sales", "contact": "", "subtype": "Other", "date": "2026-02-10", "owner": "HeartMath Chat", "converted": "No"}
+        ];
+
+        // Sales Data (Populated from Chat to Sales Flow.xlsx)
+        const rawSalesData = [
+            {"id": "325896", "date": "2026-02-08", "contact": "tamara.grace@outlook.com", "item": "One 6500 + One TRH ", "value": "449"}, 
+            {"id": "325858", "date": "2026-02-07", "contact": "atencio.yolandita@gmail.com", "item": "emWave2 Charging Cable", "value": "10"}, 
+            {"id": "325822", "date": "2026-02-07", "contact": "janet.hoopes2@gmail.com", "item": "Ear Sensor", "value": "50"}, 
+            {"id": "325777", "date": "2026-02-06", "contact": "merryl@insyncconsulting.net.au", "item": "CoP Renewal:", "value": "147.5"}, 
+            {"id": "325772", "date": "2026-02-05", "contact": "galenroehm@yahoo.com", "item": "Coherence Plus Sensor", "value": "286.99"}, 
+            {"id": "325977", "date": "2026-02-09", "contact": "creatinghealthwellness@gmail.com", "item": "emWave Pro + C Plus Sensor", "value": "316.42"}
+        ];
+
+        // --- FUNCTIONS ---
+
+        function normalizeDate(dateStr) {
+            // Check for YYYY-MM-DD
+            if (dateStr.includes('-')) return dateStr;
+            // Handle MM/DD/YYYY
+            if (dateStr.includes('/')) {
+                const parts = dateStr.split('/');
+                const m = parts[0].padStart(2, '0');
+                const d = parts[1].padStart(2, '0');
+                const y = "20" + parts[2];
+                return `${y}-${m}-${d}`;
+            }
+            return dateStr; 
+        }
+
+        function parseCurrency(str) {
+            return parseFloat(str.replace(/[^0-9.-]+/g,""));
+        }
+
+        let chartInstances = {};
+
+        function initDashboard() {
+            populateDateDropdown();
+            renderDashboard("All");
+            document.getElementById('dateFilter').addEventListener('change', (e) => renderDashboard(e.target.value));
+        }
+
+        function populateDateDropdown() {
+            const dates = [...new Set(rawTicketData.map(d => d.date))].sort().reverse();
+            const select = document.getElementById('dateFilter');
+            dates.forEach(d => {
+                const option = document.createElement('option');
+                option.value = d;
+                option.text = d;
+                select.appendChild(option);
+            });
+        }
+
+        function renderDashboard(selectedDate) {
+            const filteredTickets = selectedDate === "All" ? rawTicketData : rawTicketData.filter(d => d.date === selectedDate);
+            const filteredSales = selectedDate === "All" ? rawSalesData : rawSalesData.filter(d => normalizeDate(d.date) === selectedDate);
+
+            // --- KPI Calculations ---
+            const totalTickets = filteredTickets.length;
+            
+            // Sales
+            const salesInquiries = filteredTickets.filter(d => d.dept === "Sales");
+            const salesConverted = filteredSales.length; 
+            const salesConvRate = salesInquiries.length > 0 ? Math.round((salesConverted / salesInquiries.length) * 100) : 0;
+            const revenue = filteredSales.reduce((sum, item) => sum + parseCurrency(item.value), 0);
+
+            // Missing Emails: Dynamic if date selected, otherwise static 17 as per request
+            let missingEmails = filteredTickets.filter(d => d.contact === "-" || d.contact === "").length;
+            if(selectedDate === "All") missingEmails = 17; // Force 17 on All view
+
+            // Cancellations
+            const cancellations = filteredTickets.filter(d => d.desc.toLowerCase().includes("cancellation")).length;
+
+            // Spam
+            const spamCount = filteredTickets.filter(d => d.desc.toLowerCase().includes("spam")).length;
+
+            // Update DOM
+            document.getElementById('kpi-total-tickets').innerText = totalTickets;
+            document.getElementById('kpi-missing-emails').innerText = missingEmails;
+            document.getElementById('kpi-revenue').innerText = "$" + revenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('kpi-cancellations').innerText = cancellations;
+            document.getElementById('kpi-spam').innerText = spamCount;
+
+            // Render Visuals
+            renderDeptChart(filteredTickets);
+            renderSubTypeChart(filteredTickets);
+            renderTopInquiries(filteredTickets);
+            renderTopSubTypes(filteredTickets);
+            renderSalesTable(filteredSales, revenue);
+            renderFullTicketTable(filteredTickets);
+        }
+
+        function renderDeptChart(data) {
+            const ctx = document.getElementById('deptChart').getContext('2d');
+            const depts = {};
+            data.forEach(d => depts[d.dept] = (depts[d.dept] || 0) + 1);
+
+            if (chartInstances.dept) chartInstances.dept.destroy();
+
+            chartInstances.dept = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(depts),
+                    datasets: [{
+                        label: 'Tickets',
+                        data: Object.values(depts),
+                        backgroundColor: ['#002855', '#009fc2', '#7ab800'],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function renderSubTypeChart(data) {
+            const ctx = document.getElementById('subTypeChart').getContext('2d');
+            const counts = {};
+            data.forEach(d => {
+                let type = d.subtype || "Other";
+                if(type === "(RNG)") type = "GCP/RNG";
+                counts[type] = (counts[type] || 0) + 1;
+            });
+
+            const sortedLabels = Object.keys(counts).sort((a,b) => counts[b] - counts[a]);
+            const sortedData = sortedLabels.map(l => counts[l]);
+
+            if (chartInstances.sub) chartInstances.sub.destroy();
+
+            chartInstances.sub = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: sortedLabels,
+                    datasets: [{
+                        label: 'Inquiries',
+                        data: sortedData,
+                        backgroundColor: '#6a4c93',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { x: { beginAtZero: true, ticks: { precision: 0 } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function renderTopInquiries(data) {
+            const counts = {};
+            const deptMap = {};
+            data.forEach(d => {
+                const key = d.desc.trim();
+                counts[key] = (counts[key] || 0) + 1;
+                deptMap[key] = d.dept;
+            });
+
+            const sorted = Object.keys(counts)
+                .map(key => ({ desc: key, count: counts[key], dept: deptMap[key] }))
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 5);
+
+            const tbody = document.getElementById('topInquiriesBody');
+            tbody.innerHTML = '';
+
+            sorted.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50";
+                tr.innerHTML = `
+                    <td class="px-4 py-3 text-gray-700 truncate max-w-xs" title="${item.desc}">${item.desc}</td>
+                    <td class="px-4 py-3 text-right font-semibold text-hm-navy">${item.count}</td>
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold ${item.dept === 'Sales' ? 'bg-blue-100 text-blue-800' : item.dept === 'Technical Support' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'}">
+                            ${item.dept}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderTopSubTypes(data) {
+            const counts = {};
+            data.forEach(d => {
+                let type = d.subtype || "Other";
+                counts[type] = (counts[type] || 0) + 1;
+            });
+
+            const sorted = Object.keys(counts)
+                .map(key => ({ type: key, count: counts[key] }))
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 5);
+
+            const tbody = document.getElementById('topSubTypesBody');
+            tbody.innerHTML = '';
+
+            sorted.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50";
+                tr.innerHTML = `
+                    <td class="px-4 py-3 text-gray-700 font-medium">${item.type}</td>
+                    <td class="px-4 py-3 text-right font-bold text-hm-navy">${item.count}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderSalesTable(data, totalRevenue) {
+            const tbody = document.getElementById('salesTableBody');
+            tbody.innerHTML = '';
+            document.getElementById('table-total-value').innerText = "$" + totalRevenue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-gray-400 italic">No sales recorded for this period.</td></tr>`;
+                return;
+            }
+
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-hm-navy">#${row.id}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row.date}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${row.contact}</td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${row.item}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-hm-green">${row.value}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        function renderFullTicketTable(data) {
+            const tbody = document.getElementById('fullTicketTableBody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-4 text-center text-gray-400 italic">No tickets found.</td></tr>`;
+                return;
+            }
+
+            data.forEach(d => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-500 font-mono">${d.date}</td>
+                    <td class="px-6 py-3 text-sm text-hm-navy font-medium max-w-sm truncate" title="${d.desc}">${d.desc}</td>
+                    <td class="px-6 py-3 whitespace-nowrap text-sm">
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold ${d.dept === 'Sales' ? 'bg-blue-100 text-blue-800' : d.dept === 'Technical Support' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'}">
+                            ${d.dept}
+                        </span>
+                    </td>
+                    <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-500">${d.subtype}</td>
+                    <td class="px-6 py-3 whitespace-nowrap text-sm text-gray-700">${d.owner}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initDashboard);
+
+    </script>
+</body>
+</html>
